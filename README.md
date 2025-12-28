@@ -14,14 +14,31 @@ A high-performance, modular, and context-aware PowerShell profile designed for m
 ### 1. Link to your PowerShell Profile
 Instead of copying the file, it is recommended to "dot-source" it from your main profile. This allows you to keep the repository separate and update it easily.
 
+#### On Windows:
 Add the following line to your `$PROFILE` (usually `Documents\PowerShell\Microsoft.PowerShell_profile.ps1`):
 
 ```powershell
 . "C:\Path\To\Your\Repo\Profile.ps1"
 ```
 
+#### On Linux / WSL:
+1. Ensure PowerShell 7 is installed (`sudo apt install -y powershell`).
+2. Clone this repo to a directory (e.g., `~/projects/powershell-profile`).
+3. Add the following line to your `$PROFILE` (usually `~/.config/powershell/Microsoft.PowerShell_profile.ps1`):
+
+```powershell
+. "$HOME/projects/powershell-profile/Profile.ps1"
+```
+
 ### 2. Set up the Module Directory
-Ensure the `profile.d` folder is in the same directory as `Profile.ps1`. Any `.ps1` files placed in `profile.d/` will be automatically loaded alphabetically.
+Ensure the `profile.d` folder is in the same directory as `Profile.ps1`. Any `.ps1` files placed in `profile.d/` will be automatically loaded alphabetically. On Linux, ensure the files have correct permissions if you plan to execute them directly (though dot-sourcing handles this).
+
+## 🐧 WSL / Linux Compatibility
+The profile is cross-platform and automatically detects the operating system:
+- **Paths**: Uses `~/.config/powershell` for the root and `~/.cache/PSProfileCache` for completions on Linux.
+- **Admin**: Detects root via `id -u` on Linux.
+- **Tools**: Switches from `gsudo` (Windows) to standard `sudo` (Linux) where appropriate.
+- **Interoperability**: If running in WSL, it maintains compatibility with Windows Terminal features.
 
 ## 📂 Project Structure
 - `Profile.ps1`: The core profile logic and entry point.

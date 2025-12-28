@@ -5,15 +5,25 @@
 # Context detection
 # ----------------------------
 function Test-IsAdmin {
-    try {
-        return ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
-        ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    } catch { return $false }
+    if ($IsWindows) {
+        try {
+            return ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
+            ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+        } catch { return $false }
+    } else {
+        # Linux/macOS
+        try { return (id -u) -eq 0 } catch { return $false }
+    }
 }
 
 function Test-IsSystem {
-    try { return [System.Security.Principal.WindowsIdentity]::GetCurrent().IsSystem }
-    catch { return $false }
+    if ($IsWindows) {
+        try { return [System.Security.Principal.WindowsIdentity]::GetCurrent().IsSystem }
+        catch { return $false }
+    } else {
+        # Linux: System users usually have UID < 1000
+        try { $uid = id -u; return $uid -gt 0 -and $uid -lt 1000 } catch { return $false }
+    }
 }
 
 function Test-IsInteractive { return -not [Console]::IsInputRedirected }
@@ -49,9 +59,15 @@ if ($env:PROFILE_MODE) {
 # ----------------------------
 $global:ProfileRoot = $PSScriptRoot
 if (-not $global:ProfileRoot) {
-    $global:ProfileRoot = Join-Path $HOME "Documents\PowerShell"
+    if ($IsWindows) { $global:ProfileRoot = Join-Path $HOME "Documents\PowerShell" }
+    else { $global:ProfileRoot = Join-Path $HOME ".config\powershell" }
 }
-$global:CacheRoot   = Join-Path $env:LOCALAPPDATA "PSProfileCache"
+
+if ($IsWindows) {
+    $global:CacheRoot = Join-Path $env:LOCALAPPDATA "PSProfileCache"
+} else {
+    $global:CacheRoot = Join-Path $HOME ".cache\PSProfileCache"
+}
 $global:CompletionCache = Join-Path $global:CacheRoot "completions"
 
 foreach ($p in @($global:ProfileRoot, $global:CacheRoot, $global:CompletionCache)) {
@@ -59,9 +75,11 @@ foreach ($p in @($global:ProfileRoot, $global:CacheRoot, $global:CompletionCache
 }
 
 # Machine-wide tool locations
-$MachineToolsBin = "C:\ProgramData\Tools\bin"
-if (Test-Path $MachineToolsBin) {
-    $env:PATH = "$MachineToolsBin;$env:PATH"
+if ($IsWindows) {
+    $MachineToolsBin = "C:\ProgramData\Tools\bin"
+    if (Test-Path $MachineToolsBin) {
+        $env:PATH = "$MachineToolsBin;$env:PATH"
+    }
 }
 
 function Test-CommandExists { param([string]$Name) return $null -ne (Get-Command $Name -ErrorAction SilentlyContinue) }
@@ -77,7 +95,9 @@ try {
 try {
     $adminTag = if ($global:ProfileContext.IsAdmin) { " [ADMIN]" } else { "" }
     $sysTag   = if ($global:ProfileContext.IsSystem) { " [SYSTEM]" } else { "" }
-    $Host.UI.RawUI.WindowTitle = "pwsh $($global:ProfileContext.PSVersion)$adminTag$sysTag"
+    if ($IsWindows -or $env:WT_SESSION) {
+        $Host.UI.RawUI.WindowTitle = "pwsh $($global:ProfileContext.PSVersion)$adminTag$sysTag"
+    }
 } catch {}
 
 function global:prompt {
@@ -176,7 +196,7 @@ $DeferredContent = {
     Enable-HelmCompletion
     
     # Load optional tools
-    if (Test-CommandExists "gsudo") { Set-Alias sudo gsudo }
+    if ($IsWindows -and (Test-CommandExists "gsudo")) { Set-Alias sudo gsudo }
     if (Test-CommandExists "oh-my-posh") { 
         try { oh-my-posh init pwsh | Invoke-Expression } catch {}
     }
@@ -255,8 +275,8 @@ function Initialize-TerminalToolchain {
     
     Write-Host "=== Terminal Toolchain Bootstrap ===" -ForegroundColor Cyan
     
-    if ($MachineWide) {
-        Write-Host "Installing machine-wide tools..." -ForegroundColor Yellow
+    if ($MachineWide -and $IsWindows) {
+        Write-Host "Installing machine-wide tools (Windows)..." -ForegroundColor Yellow
         
         # Create machine-wide tools directory
         if (-not (Test-Path "C:\ProgramData\Tools\bin")) {
@@ -267,7 +287,8 @@ function Initialize-TerminalToolchain {
     }
     
     Write-Host "Bootstrap complete. Recommended tools:" -ForegroundColor Green
-    Write-Host "- gsudo: Admin elevation" -ForegroundColor Gray
+    if ($IsWindows) { Write-Host "- gsudo: Admin elevation" -ForegroundColor Gray }
+    else { Write-Host "- sudo: Admin elevation (standard)" -ForegroundColor Gray }
     Write-Host "- oh-my-posh: Prompt theming" -ForegroundColor Gray
     Write-Host "- zoxide: Directory jumping" -ForegroundColor Gray
     Write-Host "- Helm: Kubernetes package manager" -ForegroundColor Gray
