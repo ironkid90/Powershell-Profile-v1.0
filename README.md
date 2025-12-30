@@ -62,6 +62,11 @@ The profile is cross-platform and automatically detects the operating system:
 The profile automatically selects a mode based on the environment:
 - **Full Mode**: Activated in interactive user sessions. Loads all modules, themes, and completions.
 - **Stable Mode**: Activated in non-interactive sessions or system accounts. Loads only essentials for maximum reliability and speed.
+- 
+Install-Module npm-completion -Scope CurrentUser
+Install-Module git-completion -Scope CurrentUser   # or: Install-Module posh-git
+Install-Module PSFzf -Scope CurrentUser            # optional (needs fzf installed)
+
 
 ## 📝 Usage Tips
 - **Adding Aliases**: Add new aliases to a new script in `profile.d/` to keep the main profile clean.
