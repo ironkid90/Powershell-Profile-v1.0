@@ -66,6 +66,10 @@ The profile automatically selects a mode based on the environment:
 Install-Module npm-completion -Scope CurrentUser
 Install-Module git-completion -Scope CurrentUser   # or: Install-Module posh-git
 Install-Module PSFzf -Scope CurrentUser            # optional (needs fzf installed)
+Install-Module npm-completion -Scope CurrentUser
+Install-Module posh-git -Scope CurrentUser
+Install-Module Microsoft.PowerShell.ConsoleGuiTools -Scope CurrentUser
+
 
 
 ## 📝 Usage Tips
