@@ -1,0 +1,12 @@
+{
+  "summary": [
+    "Rename Import-ProfileModuleByName parameter to ModuleName and update callers to avoid  parsing issues"
+  ],
+  "tests": [
+    "pwsh -NoProfile -Command \".PSVersion\" (failed: pwsh not installed)"
+  ],
+  "files_changed": [
+    "Profile.ps1",
+    ".codex/memory.json"
+  ]
+}

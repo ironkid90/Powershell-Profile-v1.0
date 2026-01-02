@@ -1,0 +1,12 @@
+{
+  "summary": [
+    "Add troubleshooting guidance for  parser errors in README"
+  ],
+  "tests": [
+    "pwsh -NoProfile -Command \".PSVersion\" (failed: pwsh not installed)"
+  ],
+  "files_changed": [
+    "README.md",
+    ".codex/memory.json"
+  ]
+}

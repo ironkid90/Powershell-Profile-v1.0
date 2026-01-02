@@ -1,7 +1,7 @@
 
 # profile.d/60-gui.ps1
 
-if (Get-Module -ListAvailable Microsoft.PowerShell.ConsoleGuiTools -ErrorAction SilentlyContinue) {
+if ($global:PPP.EnableGuiTools -and (Get-Module -ListAvailable Microsoft.PowerShell.ConsoleGuiTools -ErrorAction SilentlyContinue)) {
     Import-Module Microsoft.PowerShell.ConsoleGuiTools -ErrorAction SilentlyContinue
 
     function ocgv {
