@@ -1,0 +1,12 @@
+{
+  "summary": [
+    "Replace module load warning strings with format operator to avoid parsing errors"
+  ],
+  "tests": [
+    "pwsh -NoProfile -Command \".PSVersion\" (failed: pwsh not installed)"
+  ],
+  "files_changed": [
+    "Profile.ps1",
+    ".codex/memory.json"
+  ]
+}
