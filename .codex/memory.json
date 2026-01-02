@@ -1,5 +1,9 @@
 {
+ codex/suggest-improvements-for-powershell-profile-gc8v07
   "objective": "Fix PowerShell profile parsing error and keep improvements stable.",
+
+  "objective": "Implement profile improvements: consolidate completions, add beginner help, optional GUI/predictor/terminal icon modules, and update documentation.",
+ main
   "constraints": [
     "Do not push or merge; only commit locally and create PR via tool",
     "Avoid destructive deletes without confirmation",
@@ -11,7 +15,13 @@
     "pwsh_available": false
   },
   "decisions": [
+ codex/suggest-improvements-for-powershell-profile-gc8v07
     "Escape module name interpolation in Profile.ps1 to avoid parser error"
+
+    "Carapace integration uses PPP_CARAPACE_SCRIPT or PPP_CARAPACE_INIT to avoid guessing init commands",
+    "Stable mode now loads 00-config and 30-completions only",
+    "Added help functions for beginner guidance"
+ main
   ],
   "open_questions": [
     "Preferred Carapace init command/script path?",
