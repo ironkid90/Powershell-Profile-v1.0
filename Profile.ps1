@@ -176,7 +176,11 @@ function Import-ProfileModuleByName {
     $path = Join-Path $profileDir $Name
     if (Test-Path $path) {
         try { . $path } catch {
+ codex/suggest-improvements-for-powershell-profile-gc8v07
+            Write-Warning "Failed to load profile module ${Name}: $($_.Exception.Message)"
+
             Write-Warning "Failed to load profile module $Name: $($_.Exception.Message)"
+ main
         }
     }
 }
