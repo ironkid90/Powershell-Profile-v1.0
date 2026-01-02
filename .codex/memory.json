@@ -1,0 +1,26 @@
+{
+  "objective": "Implement profile improvements: consolidate completions, add beginner help, optional GUI/predictor/terminal icon modules, and update documentation.",
+  "constraints": [
+    "Do not push or merge; only commit locally and create PR via tool",
+    "Avoid destructive deletes without confirmation",
+    "No PowerShell available in container for runtime tests"
+  ],
+  "environment": {
+    "repo": "/workspace/Powershell-Profile-v1.0",
+    "branch": "work",
+    "pwsh_available": false
+  },
+  "decisions": [
+    "Carapace integration uses PPP_CARAPACE_SCRIPT or PPP_CARAPACE_INIT to avoid guessing init commands",
+    "Stable mode now loads 00-config and 30-completions only",
+    "Added help functions for beginner guidance"
+  ],
+  "open_questions": [
+    "Preferred Carapace init command/script path?",
+    "Whether to remove deprecated module files (left in place as no-op)"
+  ],
+  "next_steps": [
+    "If desired, provide Carapace init command for PPP_CARAPACE_INIT",
+    "Run profile in a real PowerShell session to validate module availability"
+  ]
+}
