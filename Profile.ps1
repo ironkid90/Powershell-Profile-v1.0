@@ -163,7 +163,7 @@ $DeferredContent = {
     if (Test-Path $profileDir) {
         Get-ChildItem $profileDir -Filter "*.ps1" | Sort-Object Name | ForEach-Object {
             try { . $_.FullName } catch {
-                Write-Warning "Failed to load profile module $($_.Name): $($_.Exception.Message)"
+                Write-Warning ("Failed to load profile module {0}: {1}" -f $_.Name, $_.Exception.Message)
             }
         }
     }
