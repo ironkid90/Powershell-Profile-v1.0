@@ -1,0 +1,12 @@
+{
+  "summary": [
+    "Fix Profile.ps1 string interpolation for module name to avoid parser error"
+  ],
+  "tests": [
+    "pwsh -NoProfile -Command \".PSVersion\" (failed: pwsh not installed)"
+  ],
+  "files_changed": [
+    "Profile.ps1",
+    ".codex/memory.json"
+  ]
+}

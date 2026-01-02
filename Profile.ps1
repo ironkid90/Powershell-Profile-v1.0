@@ -129,49 +129,6 @@ if ($global:ProfileContext.IsInteractive -and (Get-Command Set-PSReadLineOption 
 }
 
 # ----------------------------
-# Completion caching for CLIs
-# ----------------------------
-function Enable-CliCompletionFromCommand {
-    param(
-        [Parameter(Mandatory)][string]$Exe,
-        [Parameter(Mandatory)][string[]]$Arguments,
-        [int]$MaxAgeDays = 14
-    )
-    
-    if (-not (Test-CommandExists $Exe)) { return }
-
-    $safeName  = ($Exe + "_" + ($Arguments -join "_")).Replace(":", "").Replace("\\", "_").Replace("/", "_")
-    $cacheFile = Join-Path $global:CompletionCache "$safeName.ps1"
-
-    $needsRefresh = $true
-    if (Test-Path $cacheFile) {
-        $ageDays = ((Get-Date) - (Get-Item $cacheFile).LastWriteTime).TotalDays
-        if ($ageDays -lt $MaxAgeDays) { $needsRefresh = $false }
-    }
-
-    if ($needsRefresh) {
-        try {
-            $script = & $Exe @Arguments | Out-String
-            if ($script -and $script.Length -gt 200) {
-                Set-Content -Path $cacheFile -Value $script -Encoding UTF8
-            }
-        } catch {
-            Write-Warning "Failed to generate completion for ${Exe}: $($_.Exception.Message)"
-        }
-    }
-
-    if (Test-Path $cacheFile) {
-        try { . $cacheFile } catch {
-            Write-Warning "Failed to load completion cache for ${Exe}: $($_.Exception.Message)"
-        }
-    }
-}
-
-function Enable-HelmCompletion {
-    Enable-CliCompletionFromCommand -Exe "helm" -Arguments @("completion","powershell") -MaxAgeDays 14
-}
-
-# ----------------------------
 # Simplified Deferred Loading
 # ----------------------------
 function Start-DeferredLoad {
@@ -192,9 +149,6 @@ function Start-DeferredLoad {
 $DeferredContent = {
     $global:DeferredLoaded = $true
     
-    # Load completions
-    Enable-HelmCompletion
-    
     # Load optional tools
     if ($IsWindows -and (Test-CommandExists "gsudo")) { Set-Alias sudo gsudo }
     if (Test-CommandExists "oh-my-posh") { 
@@ -209,8 +163,20 @@ $DeferredContent = {
     if (Test-Path $profileDir) {
         Get-ChildItem $profileDir -Filter "*.ps1" | Sort-Object Name | ForEach-Object {
             try { . $_.FullName } catch {
-                Write-Warning "Failed to load profile module $($_.Name): $($_.Exception.Message)"
+                Write-Warning ("Failed to load profile module {0}: {1}" -f $_.Name, $_.Exception.Message)
             }
+        }
+    }
+}
+
+function Import-ProfileModuleByName {
+    param([Parameter(Mandatory)][string]$Name)
+
+    $profileDir = Join-Path $global:ProfileRoot "profile.d"
+    $path = Join-Path $profileDir $Name
+    if (Test-Path $path) {
+        try { . $path } catch {
+            Write-Warning ("Failed to load profile module {0}: {1}" -f $Name, $_.Exception.Message)
         }
     }
 }
@@ -262,7 +228,9 @@ function Update-Profile {
     Write-Host "Updating profile components..." -ForegroundColor Yellow
     
     # Example: Update completion caches
-    Enable-HelmCompletion -MaxAgeDays 0
+    if (Get-Command Update-ProfileCompletions -ErrorAction SilentlyContinue) {
+        Update-ProfileCompletions
+    }
     
     Write-Host "Profile update complete" -ForegroundColor Green
 }
@@ -302,7 +270,8 @@ if ($global:PROFILE_MODE -eq "Full") {
     Start-DeferredLoad -LoadBlock $DeferredContent
 } else {
     # Stable mode: load essentials only
-    Enable-HelmCompletion
+    Import-ProfileModuleByName -Name "00-config.ps1"
+    Import-ProfileModuleByName -Name "30-completions.ps1"
 }
 
 # ----------------------------
@@ -311,4 +280,5 @@ if ($global:PROFILE_MODE -eq "Full") {
 if ($global:ProfileContext.IsInteractive) {
     Write-Host "PowerShell profile loaded ($($global:PROFILE_MODE) mode)" -ForegroundColor Green
     Write-Host "Use 'Show-ProfileStatus' for details, 'Invoke-ProfileHealthCheck' for tool status" -ForegroundColor Gray
+    Write-Host "Use 'Show-ProfileHelp' for beginner-friendly tips and shortcuts" -ForegroundColor Gray
 }
