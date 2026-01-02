@@ -32,8 +32,8 @@ if ($contents -notcontains $line) {
 $legacyProfile = Join-Path $profileDir "profile.ps1"
 if (Test-Path $legacyProfile) {
     $legacyContent = Get-Content -Path $legacyProfile -ErrorAction SilentlyContinue
-    if ($legacyContent -match "\\$Name:") {
-        Write-Warning "Found legacy profile.ps1 referencing '\$Name:'. This can cause ParserError. Consider removing or updating that file: $legacyProfile"
+    if ($legacyContent -match '\\$Name:') {
+        Write-Warning "Found legacy profile.ps1 referencing '$$Name:'. This can cause ParserError. Consider removing or updating that file: $legacyProfile"
     } else {
         Write-Warning "A legacy profile.ps1 exists: $legacyProfile. Ensure your $PROFILE is dot-sourcing the repo Profile.ps1 instead."
     }
