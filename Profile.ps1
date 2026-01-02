@@ -170,13 +170,17 @@ $DeferredContent = {
 }
 
 function Import-ProfileModuleByName {
-    param([Parameter(Mandatory)][string]$ModuleName)
+    param([Parameter(Mandatory)][string]$Name)
 
     $profileDir = Join-Path $global:ProfileRoot "profile.d"
-    $path = Join-Path $profileDir $ModuleName
+    $path = Join-Path $profileDir $Name
     if (Test-Path $path) {
         try { . $path } catch {
-            Write-Warning ("Failed to load profile module {0}: {1}" -f $ModuleName, $_.Exception.Message)
+ codex/suggest-improvements-for-powershell-profile-gc8v07
+            Write-Warning "Failed to load profile module ${Name}: $($_.Exception.Message)"
+
+            Write-Warning "Failed to load profile module $Name: $($_.Exception.Message)"
+ main
         }
     }
 }
@@ -270,8 +274,8 @@ if ($global:PROFILE_MODE -eq "Full") {
     Start-DeferredLoad -LoadBlock $DeferredContent
 } else {
     # Stable mode: load essentials only
-    Import-ProfileModuleByName -ModuleName "00-config.ps1"
-    Import-ProfileModuleByName -ModuleName "30-completions.ps1"
+    Import-ProfileModuleByName -Name "00-config.ps1"
+    Import-ProfileModuleByName -Name "30-completions.ps1"
 }
 
 # ----------------------------
