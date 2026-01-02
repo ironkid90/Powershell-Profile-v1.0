@@ -94,5 +94,20 @@ Optional external tools:
 - **Carapace**: Set `PPP_ENABLE_CARAPACE=1` and provide `PPP_CARAPACE_SCRIPT` or `PPP_CARAPACE_INIT` to load your Carapace PowerShell init.
 - **Help**: Run `Show-ProfileHelp` and `Show-ToolInstallHelp` for quick reminders.
 
+## 🧰 Troubleshooting
+### ParserError: `$Name:` variable reference is not valid
+If you see an error like:
+```
+Variable reference is not valid. ':' was not followed by a valid variable name character.
+```
+make sure your `$PROFILE` is dot-sourcing the **latest** `Profile.ps1` from this repo and not an older copy.
+Steps:
+1. Confirm your `$PROFILE` file contains a line like:
+   ```powershell
+   . "C:\Path\To\Your\Repo\Profile.ps1"
+   ```
+2. Remove or update any old copies of `Profile.ps1` that might still be referenced.
+3. Restart the terminal and run `Show-ProfileStatus`.
+
 ---
 *Developed as part of the ProjectPowershell1 initiative.*

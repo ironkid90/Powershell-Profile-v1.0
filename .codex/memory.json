@@ -1,4 +1,5 @@
 {
+  "objective": "Fix PowerShell profile parsing errors and keep improvements stable.",
  codex/suggest-improvements-for-powershell-profile-gc8v07
   "objective": "Fix PowerShell profile parsing error and keep improvements stable.",
 
@@ -15,6 +16,9 @@
     "pwsh_available": false
   },
   "decisions": [
+    "Rename Import-ProfileModuleByName parameter to ModuleName to avoid $Name parsing issues",
+    "Use format strings for module load warnings to avoid variable-colon parsing issues",
+    "Document troubleshooting for stale profile copies causing $Name parsing errors"
  codex/suggest-improvements-for-powershell-profile-gc8v07
     "Escape module name interpolation in Profile.ps1 to avoid parser error"
 

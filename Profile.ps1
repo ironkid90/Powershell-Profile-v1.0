@@ -170,6 +170,13 @@ $DeferredContent = {
 }
 
 function Import-ProfileModuleByName {
+    param([Parameter(Mandatory)][string]$ModuleName)
+
+    $profileDir = Join-Path $global:ProfileRoot "profile.d"
+    $path = Join-Path $profileDir $ModuleName
+    if (Test-Path $path) {
+        try { . $path } catch {
+            Write-Warning ("Failed to load profile module {0}: {1}" -f $ModuleName, $_.Exception.Message)
     param([Parameter(Mandatory)][string]$Name)
 
     $profileDir = Join-Path $global:ProfileRoot "profile.d"
@@ -274,6 +281,8 @@ if ($global:PROFILE_MODE -eq "Full") {
     Start-DeferredLoad -LoadBlock $DeferredContent
 } else {
     # Stable mode: load essentials only
+    Import-ProfileModuleByName -ModuleName "00-config.ps1"
+    Import-ProfileModuleByName -ModuleName "30-completions.ps1"
     Import-ProfileModuleByName -Name "00-config.ps1"
     Import-ProfileModuleByName -Name "30-completions.ps1"
 }
