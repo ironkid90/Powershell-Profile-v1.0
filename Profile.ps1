@@ -177,17 +177,6 @@ function Import-ProfileModuleByName {
     if (Test-Path $path) {
         try { . $path } catch {
             Write-Warning ("Failed to load profile module {0}: {1}" -f $ModuleName, $_.Exception.Message)
-    param([Parameter(Mandatory)][string]$Name)
-
-    $profileDir = Join-Path $global:ProfileRoot "profile.d"
-    $path = Join-Path $profileDir $Name
-    if (Test-Path $path) {
-        try { . $path } catch {
- codex/suggest-improvements-for-powershell-profile-gc8v07
-            Write-Warning "Failed to load profile module ${Name}: $($_.Exception.Message)"
-
-            Write-Warning "Failed to load profile module $Name: $($_.Exception.Message)"
- main
         }
     }
 }
