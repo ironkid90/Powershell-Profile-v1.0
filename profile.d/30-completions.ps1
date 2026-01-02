@@ -54,7 +54,17 @@ function Enable-NpmCompletion {
     }
 }
 
+function Enable-ProfileCompletions {
+    Enable-HelmCompletion
+    Enable-AzCompletion
+    Enable-NpmCompletion
+}
+
+function Update-ProfileCompletions {
+    Enable-CliCompletionCache -Exe "helm" -Args @("completion","powershell") -CacheName "helm" -MaxAgeDays 0
+    Enable-CliCompletionCache -Exe "az" -Args @("completion","-s","powershell") -CacheName "az" -MaxAgeDays 0
+    Enable-NpmCompletion
+}
+
 # Activate completions (safe in Stable/Full)
-Enable-HelmCompletion
-Enable-AzCompletion
-Enable-NpmCompletion
+Enable-ProfileCompletions
