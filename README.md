@@ -10,6 +10,16 @@ A high-performance, modular, and context-aware PowerShell profile designed for m
 - **Agent Friendly**: Structured to work well with AI coding assistants and automation.
 
 ## 🚀 Installation & Activation
+### Quick Install Script (Recommended)
+Run from this repo to auto-wire your profile:
+```powershell
+.\Install-Profile.ps1
+```
+This will:
+- Create your PowerShell profile if missing.
+- Add a dot-source line to this repo’s `Profile.ps1`.
+- Warn if a legacy `profile.ps1` exists (which can cause parser errors).
+
 
 ### 1. Link to your PowerShell Profile
 Instead of copying the file, it is recommended to "dot-source" it from your main profile. This allows you to keep the repository separate and update it easily.

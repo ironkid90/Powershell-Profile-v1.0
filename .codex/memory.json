@@ -18,6 +18,8 @@
   "decisions": [
     "Rename Import-ProfileModuleByName parameter to ModuleName to avoid $Name parsing issues",
     "Use format strings for module load warnings to avoid variable-colon parsing issues",
+    "Add Install-Profile.ps1 to ensure $PROFILE dot-sources the repo profile and warn on legacy profile.ps1",
+    "Document quick install script and legacy profile warning in README"
     "Document troubleshooting for stale profile copies causing $Name parsing errors"
  codex/suggest-improvements-for-powershell-profile-gc8v07
     "Escape module name interpolation in Profile.ps1 to avoid parser error"

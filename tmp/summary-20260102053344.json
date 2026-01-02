@@ -1,0 +1,14 @@
+{
+  "summary": [
+    "Add Install-Profile.ps1 to wire dot-sourcing and warn about legacy profile.ps1",
+    "Document quick install script in README"
+  ],
+  "tests": [
+    "pwsh -NoProfile -Command \".PSVersion\" (failed: pwsh not installed)"
+  ],
+  "files_changed": [
+    "Install-Profile.ps1",
+    "README.md",
+    ".codex/memory.json"
+  ]
+}
