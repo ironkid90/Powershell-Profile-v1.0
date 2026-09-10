@@ -6,6 +6,6 @@ if ($global:PPP.EnablePredictors -and (Get-Command Set-PSReadLineOption -ErrorAc
         Import-Module Az.Tools.Predictor -ErrorAction SilentlyContinue
         try {
             Set-PSReadLineOption -PredictionSource HistoryAndPlugin -PredictionViewStyle ListView
-        } catch { Write-Verbose "Failed to update PSReadLine prediction mode: $($_.Exception.Message)" }
+        } catch { Write-ProfileWarning "Failed to update PSReadLine prediction mode: $($_.Exception.Message)" }
     }
 }

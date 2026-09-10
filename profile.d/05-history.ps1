@@ -18,8 +18,8 @@ if ($global:PPP.EnableHistory -and
 function Search-ProfileHistory {
     param([Parameter(Mandatory, Position = 0)][string]$Pattern)
 
-    $historyPath = Join-Path $global:CacheRoot "history\PSReadLine.history.txt"
+    $historyPath = Join-Path (Join-Path $global:CacheRoot "history") "PSReadLine.history.txt"
     if (Test-Path $historyPath) {
-        Select-String -Path $historyPath -Pattern $Pattern
+        Select-String -Path $historyPath -Pattern $Pattern | ForEach-Object { $_.Line }
     }
 }

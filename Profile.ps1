@@ -29,14 +29,13 @@ function Test-IsSystem {
 function Test-IsInteractive { return -not [Console]::IsInputRedirected }
 
 function Test-IsAgentHost {
-    return [bool](
-        $env:CI -or
-        $env:GITHUB_ACTIONS -or
-        $env:AZURE_PIPELINES -or
-        $env:TF_BUILD -or
-        $env:COPILOT_AGENT -or
+    $enabledValues = @("1", "true", "yes")
+    return ($enabledValues -contains "$env:CI".ToLowerInvariant()) -or
+        ($enabledValues -contains "$env:GITHUB_ACTIONS".ToLowerInvariant()) -or
+        ($enabledValues -contains "$env:AZURE_PIPELINES".ToLowerInvariant()) -or
+        ($enabledValues -contains "$env:TF_BUILD".ToLowerInvariant()) -or
+        ($enabledValues -contains "$env:COPILOT_AGENT".ToLowerInvariant()) -or
         $env:TERM_PROGRAM -eq "Code"
-    )
 }
 
 function Get-ProfileContext {
@@ -55,6 +54,11 @@ function Get-ProfileContext {
 
 $global:ProfileContext = Get-ProfileContext
 $global:ProfileQuiet = -not $global:ProfileContext.IsInteractive -or $global:ProfileContext.IsAgentHost
+
+function Write-ProfileWarning {
+    param([Parameter(Mandatory)][string]$Message)
+    if ($global:ProfileQuiet) { Write-Verbose $Message } else { Write-Warning $Message }
+}
 
 # ----------------------------
 # Mode selection
@@ -86,6 +90,10 @@ $global:CompletionCache = Join-Path $global:CacheRoot "completions"
 foreach ($p in @($global:ProfileRoot, $global:CacheRoot, $global:CompletionCache)) {
     if (-not (Test-Path $p)) { New-Item -ItemType Directory -Path $p -Force | Out-Null }
 }
+
+# Load feature flags before configuring PSReadLine so history opt-outs are honored.
+$configPath = Join-Path $global:ProfileRoot "profile.d\00-config.ps1"
+if (Test-Path $configPath) { . $configPath }
 
 # Machine-wide tool locations
 if ($IsWindows) {
@@ -123,10 +131,11 @@ function global:prompt {
 # ----------------------------
 if ($global:ProfileContext.IsInteractive -and (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue)) {
     try {
+        $historyStyle = if ($global:PPP.EnableHistory) { "SaveIncrementally" } else { "SaveNothing" }
         Set-PSReadLineOption -EditMode Windows `
             -HistoryNoDuplicates `
             -MaximumHistoryCount 10000 `
-            -HistorySaveStyle SaveIncrementally `
+            -HistorySaveStyle $historyStyle `
             -HistorySearchCursorMovesToEnd `
             -PredictionSource History `
             -PredictionViewStyle ListView `
@@ -138,7 +147,7 @@ if ($global:ProfileContext.IsInteractive -and (Get-Command Set-PSReadLineOption 
         
         # Fix Windows Terminal paste behavior
         Set-PSReadLineKeyHandler -Key Ctrl+V -Function Paste
-    } catch { Write-Verbose "PSReadLine configuration failed: $($_.Exception.Message)" }
+    } catch { Write-ProfileWarning "PSReadLine configuration failed: $($_.Exception.Message)" }
 }
 
 # ----------------------------
@@ -152,7 +161,7 @@ function Start-DeferredLoad {
     try {
         . $LoadBlock
     } catch {
-        Write-Verbose "Deferred load failed: $($_.Exception.Message)"
+        Write-ProfileWarning "Deferred load failed: $($_.Exception.Message)"
     }
 }
 
@@ -176,7 +185,7 @@ $DeferredContent = {
     if (Test-Path $profileDir) {
         Get-ChildItem $profileDir -Filter "*.ps1" | Sort-Object Name | ForEach-Object {
             try { . $_.FullName } catch {
-                Write-Verbose ("Failed to load profile module {0}: {1}" -f $_.Name, $_.Exception.Message)
+                Write-ProfileWarning ("Failed to load profile module {0}: {1}" -f $_.Name, $_.Exception.Message)
             }
         }
     }
@@ -189,7 +198,7 @@ function Import-ProfileModuleByName {
     $path = Join-Path $profileDir $ModuleName
     if (Test-Path $path) {
         try { . $path } catch {
-            Write-Verbose ("Failed to load profile module {0}: {1}" -f $ModuleName, $_.Exception.Message)
+            Write-ProfileWarning ("Failed to load profile module {0}: {1}" -f $ModuleName, $_.Exception.Message)
         }
     }
 }
@@ -290,7 +299,7 @@ if ($global:PROFILE_MODE -eq "Full") {
 # ----------------------------
 # Final initialization message
 # ----------------------------
-if ($global:ProfileContext.IsInteractive -and -not $global:ProfileQuiet -and $env:PPP_SHOW_STARTUP -eq "1") {
+if ($global:ProfileContext.IsInteractive -and -not $global:ProfileQuiet -and $global:PPP.ShowStartup) {
     Write-Host "PowerShell profile loaded ($($global:PROFILE_MODE) mode)" -ForegroundColor Green
     Write-Host "Use 'Show-ProfileStatus' for details, 'Invoke-ProfileHealthCheck' for tool status" -ForegroundColor Gray
     Write-Host "Use 'Show-ProfileHelp' for beginner-friendly tips and shortcuts" -ForegroundColor Gray

@@ -69,6 +69,6 @@ function uptime {
     if (Get-Command Get-Uptime -ErrorAction SilentlyContinue) {
         Get-Uptime
     } elseif ($IsWindows) {
-        (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
+        (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
     }
 }
