@@ -1,4 +1,4 @@
-# Project PowerShell Profile (PPP) v1.0
+# Project PowerShell Profile (PPP) v1.1
 
 A high-performance, modular, and context-aware PowerShell profile designed for modern development workflows.
 
@@ -7,7 +7,9 @@ A high-performance, modular, and context-aware PowerShell profile designed for m
 - **Predictable Behavior**: Context detection ensures the profile behaves correctly in VSCode, Windows Terminal, SSH, and as Administrator.
 - **Modular Design**: Features are separated into logical modules in the `profile.d/` directory.
 - **Completion Preservation**: Caches CLI tool completions (like Helm) to avoid expensive generation on every shell start.
+- **History Preservation**: Saves PSReadLine history incrementally in the profile cache for reuse across sessions.
 - **Agent Friendly**: Structured to work well with AI coding assistants and automation.
+- **Low Noise**: Noninteractive, CI, and agent hosts load without startup banners or optional-tool warnings.
 
 ## 🚀 Installation & Activation
 ### Quick Install Script (Recommended)
@@ -53,6 +55,7 @@ The profile is cross-platform and automatically detects the operating system:
 ## 📂 Project Structure
 - `Profile.ps1`: The core profile logic and entry point.
 - `profile.d/`: Directory for modular scripts.
+  - `05-history.ps1`: Persistent PSReadLine history and history search.
   - `10-git.ps1`: Git aliases and functions.
   - `20-aliases.ps1`: Navigation and general utility aliases.
   - `30-completions.ps1`: CLI completion registrations.
@@ -72,12 +75,23 @@ The profile is cross-platform and automatically detects the operating system:
 | `Update-Profile` | Manually triggers a refresh of cached components (like completions). |
 | `Initialize-TerminalToolchain` | Bootstraps the environment by setting up tool directories. |
 | `Show-ProfileHelp` | Beginner-friendly tips and key shortcuts. |
+| `Search-ProfileHistory <text>` | Searches the persistent PSReadLine history file. |
 | `Show-ToolInstallHelp` | Quick install commands for optional modules. |
 
 ## ⚙️ Loading Modes
 The profile automatically selects a mode based on the environment:
 - **Full Mode**: Activated in interactive user sessions. Loads all modules, themes, and completions.
 - **Stable Mode**: Activated in non-interactive sessions or system accounts. Loads only essentials for maximum reliability and speed.
+- **Quiet agent mode**: CI and coding-agent hosts suppress banners and optional-tool warnings while preserving deterministic command behavior.
+
+## 🔧 Environment Overrides
+
+| Variable | Effect |
+|----------|--------|
+| `PPP_SHOW_STARTUP=1` | Show the optional startup status/help banner. |
+| `PPP_ENABLE_HISTORY=0` | Disable persistent PSReadLine history. |
+| `PPP_FORCE_MODE=Stable` | Force stable loading for a host/session. |
+| `PPP_ENABLE_PSFZF=1` / `PPP_ENABLE_CARAPACE=1` | Enable optional completion integrations. |
 
 ## 📦 Recommended Modules
 ```powershell

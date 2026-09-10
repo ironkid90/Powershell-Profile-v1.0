@@ -55,6 +55,7 @@ function Enable-NpmCompletion {
 }
 
 function Enable-ProfileCompletions {
+    if (-not $global:ProfileContext.IsInteractive) { return }
     Enable-HelmCompletion
     Enable-AzCompletion
     Enable-NpmCompletion
