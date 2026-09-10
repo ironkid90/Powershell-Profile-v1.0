@@ -8,12 +8,14 @@ function Show-ProfileHelp {
     Write-Host "  Invoke-ProfileHealthCheck - Check recommended tools" -ForegroundColor Gray
     Write-Host "  Update-Profile           - Refresh cached components" -ForegroundColor Gray
     Write-Host "  Show-PSReadLineTips      - Keybinding tips" -ForegroundColor Gray
+    Write-Host "  Search-ProfileHistory    - Search saved command history" -ForegroundColor Gray
     Write-Host "GUI tools (if enabled):" -ForegroundColor Yellow
     Write-Host "  Get-Process | ocgv       - Interactive grid view" -ForegroundColor Gray
     Write-Host "  Get-Variable | sot       - Object tree viewer" -ForegroundColor Gray
     Write-Host "Navigation:" -ForegroundColor Yellow
     Write-Host "  z <dir>                  - Jump to directory (zoxide)" -ForegroundColor Gray
     Write-Host "  Ctrl+T / Ctrl+R          - Fuzzy file/history (PSFzf)" -ForegroundColor Gray
+    Write-Host "  mkcd / touch / ff        - Directory, file, and search helpers" -ForegroundColor Gray
 }
 
 function Show-ToolInstallHelp {

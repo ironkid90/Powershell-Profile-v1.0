@@ -42,3 +42,33 @@ function Measure-Directory {
     }
 }
 Set-Alias -Name dirsize -Value Measure-Directory
+
+# Small, cross-platform helpers commonly used in modern PowerShell profiles.
+function mkcd {
+    param([Parameter(Mandatory, Position = 0)][string]$Path)
+    New-Item -ItemType Directory -Path $Path -Force | Out-Null
+    Set-Location -Path $Path
+}
+
+function touch {
+    param([Parameter(Mandatory, Position = 0)][string]$Path)
+    if (Test-Path -LiteralPath $Path) {
+        (Get-Item -LiteralPath $Path).LastWriteTime = Get-Date
+    } else {
+        New-Item -ItemType File -Path $Path -Force | Out-Null
+    }
+}
+
+function ff {
+    param([Parameter(Mandatory, Position = 0)][string]$Name)
+    Get-ChildItem -Recurse -File -Filter "*$Name*" -ErrorAction SilentlyContinue |
+        Select-Object -ExpandProperty FullName
+}
+
+function uptime {
+    if (Get-Command Get-Uptime -ErrorAction SilentlyContinue) {
+        Get-Uptime
+    } elseif ($IsWindows) {
+        (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
+    }
+}
